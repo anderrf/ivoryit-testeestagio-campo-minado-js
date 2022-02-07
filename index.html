@@ -15,6 +15,45 @@
             document.getElementById('exibir-execucao').innerHTML += '<pre>' + campoMinado.Tabuleiro() + '</pre>';
             
             // Realize sua codificação a partir deste ponto, boa sorte!
+
+            //declaração de variáveis globais
+            const divExibirExecucao = document.getElementById('exibir-execucao');
+            
+            //Declaração de métodos úteis
+            const retornarTextoStatus = function(numStatus){
+                let textoStatus = '';
+                switch(numStatus){
+                    case 0:
+                        textoStatus = 'Jogo em aberto';
+                        break;
+                    case 1:
+                        textoStatus = 'Vitoria';
+                        break;
+                    case 2:
+                        textoStatus = 'Game Over';
+                        break;
+                }
+                return textoStatus;
+            }
+
+            const retornarNumeroTeste = function(){
+                const min = 1;
+                const max = 9;
+                let numeroTeste = Math.random() * (max - min) + min;
+                return Math.round(numeroTeste);
+            }
+
+            const imprimirStatusTabuleiro = function(){
+                divExibirExecucao.innerHTML += `----------- ${retornarTextoStatus(campoMinado.JogoStatus())} -----------`;
+                divExibirExecucao.innerHTML += '<pre>' + campoMinado.Tabuleiro() + '</pre>';
+            }
+            
+            //Execução do jogo
+            do{
+                campoMinado.Abrir(retornarNumeroTeste(), retornarNumeroTeste());
+                imprimirStatusTabuleiro();
+            }
+            while(campoMinado.JogoStatus() == 0);
         </script>
     </body>
 </html>
