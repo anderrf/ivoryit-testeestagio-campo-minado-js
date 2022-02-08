@@ -15,6 +15,120 @@
             document.getElementById('exibir-execucao').innerHTML += '<pre>' + campoMinado.Tabuleiro() + '</pre>';
             
             // Realize sua codificação a partir deste ponto, boa sorte!
+
+            //declaração de variáveis globais
+            const divExibirExecucao = document.getElementById('exibir-execucao');
+            var posicoesTentadas = [];
+            var bombasEncontradas = [];
+            
+            //Declaração de métodos úteis
+            const retornarTextoStatus = function(numStatus){
+                let textoStatus = '';
+                switch(numStatus){
+                    case 0:
+                        textoStatus = 'Jogo em aberto';
+                        break;
+                    case 1:
+                        textoStatus = 'Vitoria';
+                        break;
+                    case 2:
+                        textoStatus = 'Game Over';
+                        break;
+                }
+                return textoStatus;
+            }
+
+            const retornarNumeroTeste = function(){
+                const min = 1;
+                const max = 9;
+                let numeroTeste = Math.random() * (max - min) + min;
+                return Math.round(numeroTeste);
+            }
+
+            const imprimirStatusTabuleiro = function(){
+                divExibirExecucao.innerHTML += `<br/>----------- ${retornarTextoStatus(campoMinado.JogoStatus())} -----------`;
+                divExibirExecucao.innerHTML += '<pre>' + campoMinado.Tabuleiro() + '</pre>';
+            }
+
+            const verificarMinasProximas = function(posicao, tabuleiro){
+                if(tabuleiro[posicao[0]][posicao[1]] == '-' || tabuleiro[posicao[0]][posicao[1]] == '0'){
+                    return;
+                }
+                let posicoesProximas = [];
+                if((posicao[0] - 1 > -1) && (posicao[1] - 1 > -1) && tabuleiro[posicao[0] - 1][posicao[1] - 1] && tabuleiro[posicao[0] - 1][posicao[1] - 1] == '-'){
+                    posicoesProximas.push([posicao[0] - 1, posicao[1] - 1]);
+                }
+                if((posicao[0] - 1 > -1) && tabuleiro[posicao[0] - 1][posicao[1]] && tabuleiro[posicao[0] - 1][posicao[1]] == '-'){
+                    posicoesProximas.push([posicao[0] - 1, posicao[1]]);
+                }
+                if((posicao[0] - 1 > -1) && (posicao[1] + 1 < 9) && tabuleiro[posicao[0] - 1][posicao[1] + 1] && tabuleiro[posicao[0] - 1][posicao[1] + 1] == '-'){
+                    posicoesProximas.push([posicao[0] - 1, posicao[1] + 1]);
+                }
+                if((posicao[1] - 1 > -1) && tabuleiro[posicao[0]][posicao[1] - 1] && tabuleiro[posicao[0]][posicao[1] - 1] == '-'){
+                    posicoesProximas.push([posicao[0], posicao[1] - 1]);
+                }
+                if((posicao[1] + 1 < 9) && tabuleiro[posicao[0]][posicao[1] + 1] && tabuleiro[posicao[0]][posicao[1] + 1] == '-'){
+                    posicoesProximas.push([posicao[0], posicao[1] + 1]);
+                }
+                if((posicao[0] + 1 < 9) && (posicao[1] - 1 > -1) && tabuleiro[posicao[0] + 1][posicao[1] - 1] && tabuleiro[posicao[0] + 1][posicao[1] - 1] == '-'){
+                    posicoesProximas.push([posicao[0] + 1, posicao[1] - 1]);
+                }
+                if((posicao[0] + 1 < 9) && tabuleiro[posicao[0] + 1][posicao[1]] && tabuleiro[posicao[0] + 1][posicao[1]] == '-'){
+                    posicoesProximas.push([posicao[0] + 1, posicao[1]]);
+                }
+                if((posicao[0] + 1 < 9) && (posicao[1] + 1 < 9) && tabuleiro[posicao[0] + 1][posicao[1] + 1] && tabuleiro[posicao[0] + 1][posicao[1] + 1] == '-'){
+                    posicoesProximas.push([posicao[0] + 1, posicao[1] + 1]);
+                }
+                if(posicoesProximas.length == tabuleiro[posicao[0]][posicao[1]]){
+                    for(let proximo of posicoesProximas){
+                        if(!bombasEncontradas.find((bomba) => (bomba[0] == proximo[0] && bomba[1] == proximo[1]))){
+                            bombasEncontradas.push([proximo[0], proximo[1]]);
+                            divExibirExecucao.innerHTML += `Bomba encontrada: linha(${proximo[0] + 1}) / coluna(${proximo[1] + 1})<br/>`;
+                        }
+                    }
+                }
+            }
+
+            const verificarPosicaoValida = function(posicao){
+                const arrayTabuleiro = campoMinado.Tabuleiro().toString().split('\r\n');
+                posicao = [(posicao[0] - 1), (posicao[1] - 1)];
+                if(arrayTabuleiro[posicao[0]][posicao[1]] != '-'){
+                    return false;
+                }
+                if(bombasEncontradas.find((bomba) => (bomba[0] == posicao[0] && bomba[1] == posicao[1]))){
+                    return false;
+                }
+                return true;
+            }
+
+            const retornarPosicao = function(){
+                let posicao = [-1, -1];
+                do{
+                    posicao = [retornarNumeroTeste(), retornarNumeroTeste()];
+                }
+                while(posicao == [-1, -1] || posicoesTentadas.includes(posicao) || !verificarPosicaoValida(posicao));
+                posicoesTentadas.push(posicao);
+                return posicao;
+            }
+
+            const verificarMinasPorPosicao = function(){
+                let arraytabuleiro = campoMinado.Tabuleiro().toString().split('\r\n');
+                for(let linha = 0; linha < 9; linha++){
+                    for(let coluna = 0; coluna < 9; coluna++){
+                        verificarMinasProximas([linha, coluna], arraytabuleiro);
+                    }
+                }
+            }
+            
+            //Execução do jogo
+            do{
+                verificarMinasPorPosicao();
+                let posicao = retornarPosicao();
+                campoMinado.Abrir(posicao[0], posicao[1]);
+                imprimirStatusTabuleiro();
+            }
+            while(campoMinado.JogoStatus() == 0);
+
         </script>
     </body>
 </html>
