@@ -46,7 +46,7 @@
             }
 
             const imprimirStatusTabuleiro = function(){
-                divExibirExecucao.innerHTML += `----------- ${retornarTextoStatus(campoMinado.JogoStatus())} -----------`;
+                divExibirExecucao.innerHTML += `<br/>----------- ${retornarTextoStatus(campoMinado.JogoStatus())} -----------`;
                 divExibirExecucao.innerHTML += '<pre>' + campoMinado.Tabuleiro() + '</pre>';
             }
 
@@ -81,8 +81,8 @@
                 }
                 if(posicoesProximas.length == tabuleiro[posicao[0]][posicao[1]]){
                     for(let proximo of posicoesProximas){
-                        if(!bombasEncontradas.includes(proximo)){
-                            bombasEncontradas.push(proximo);
+                        if(!bombasEncontradas.find((bomba) => (bomba[0] == proximo[0] && bomba[1] == proximo[1]))){
+                            bombasEncontradas.push([proximo[0], proximo[1]]);
                             divExibirExecucao.innerHTML += `Bomba encontrada: linha(${proximo[0] + 1}) / coluna(${proximo[1] + 1})<br/>`;
                         }
                     }
@@ -95,7 +95,7 @@
                 if(arrayTabuleiro[posicao[0]][posicao[1]] != '-'){
                     return false;
                 }
-                if(bombasEncontradas.includes(posicao)){
+                if(bombasEncontradas.find((bomba) => (bomba[0] == posicao[0] && bomba[1] == posicao[1]))){
                     return false;
                 }
                 return true;
@@ -110,18 +110,22 @@
                 posicoesTentadas.push(posicao);
                 return posicao;
             }
-            
-            //Execução do jogo
-            do{
-                let posicao = retornarPosicao();
-                campoMinado.Abrir(posicao[0], posicao[1]);
-                imprimirStatusTabuleiro();
+
+            const verificarMinasPorPosicao = function(){
                 let arraytabuleiro = campoMinado.Tabuleiro().toString().split('\r\n');
                 for(let linha = 0; linha < 9; linha++){
                     for(let coluna = 0; coluna < 9; coluna++){
                         verificarMinasProximas([linha, coluna], arraytabuleiro);
                     }
                 }
+            }
+            
+            //Execução do jogo
+            do{
+                verificarMinasPorPosicao();
+                let posicao = retornarPosicao();
+                campoMinado.Abrir(posicao[0], posicao[1]);
+                imprimirStatusTabuleiro();
             }
             while(campoMinado.JogoStatus() == 0);
 
